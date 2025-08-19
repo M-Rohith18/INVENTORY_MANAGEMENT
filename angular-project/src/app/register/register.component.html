@@ -1,0 +1,80 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="card shadow border-0 w-100" style="max-width: 500px;">
+
+    <!-- Header -->
+    <div class="card-header bg-primary text-white text-center">
+      <h3 class="mb-0 py-2 fw-semibold">Register</h3>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body p-4" style="background-color: #ecd0f7;">
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- Username -->
+        <div class="mb-3">
+          <label class="form-label">Name</label>
+          <input type="text" formControlName="username" class="form-control" />
+          <div class="text-danger" *ngIf="fieldErrors.username">{{ fieldErrors.username }}</div>
+        </div>
+
+        
+
+        <!-- Email -->
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" formControlName="email" class="form-control" />
+          <div class="text-danger" *ngIf="fieldErrors.email">{{ fieldErrors.email }}</div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <div class="input-group">
+            <input [type]="showPassword ? 'text' : 'password'" formControlName="password" class="form-control" />
+            <span class="input-group-text" (click)="togglePassword()" style="cursor: pointer;">
+              <i class="fa" [ngClass]="showPassword ?  'fa-eye':'fa-eye-slash' "></i>
+            </span>
+          </div>
+          <div class="text-danger" *ngIf="fieldErrors.password">{{ fieldErrors.password }}</div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mb-3">
+          <label class="form-label">Confirm Password</label>
+          <div class="input-group">
+            <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="password_confirm" class="form-control" />
+            <span class="input-group-text" (click)="toggleConfirmPassword()" style="cursor: pointer;">
+              <i class="fa" [ngClass]="showConfirmPassword ? 'fa-eye':'fa-eye-slash'"></i>
+            </span>
+          </div>
+          <div class="text-danger" *ngIf="fieldErrors.password_confirm">{{ fieldErrors.password_confirm }}</div>
+        </div>
+
+        <!-- Non-field Error -->
+        <div class="text-danger mb-2" *ngIf="nonFieldError">{{ nonFieldError }}</div>
+
+        <!-- Submit -->
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary">Register</button>
+        </div>
+      </form>
+
+      <!-- Login Link -->
+      <div class="text-center mt-3">
+        <small class="text-muted">Already have an account?
+          <a routerLink="/login" class="text-decoration-none ms-1">Login here</a>
+        </small>
+  </div>
+
+  <!-- Toast Message -->
+  <div *ngIf="successMessage" class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast show align-items-center text-bg-success border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body">
+          {{ successMessage }}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="successMessage = ''"></button>
+      </div>
+    </div>
+  </div>
+</div>

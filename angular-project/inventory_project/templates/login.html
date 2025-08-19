@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Toast Container -->
+<div aria-live="polite" aria-atomic="true" class="position-relative">
+  <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white text-center rounded-top">
+          <h4 class="mb-0 py-2">Login</h4>
+        </div>
+        <div class="card-body p-4">
+
+          <form id="login-form">
+            
+            <div class="mb-3">
+              <label for="username" class="form-label">User Name</label>
+              <input type="text" class="form-control" id="username" name="username" >
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" name="password" >
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">Login</button>
+            </div>
+          </form>
+
+          <div class="text-center mt-3">
+            <a href="{% url 'inventory_project:forget_password' %}">Forgot password?</a>
+          </div>
+          <p class="text-center mt-2 mb-0">Don't have an account?
+            <a href="{% url 'inventory_project:register' %}">Register</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- jQuery & Bootstrap Toast Script -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#login-form').submit(function (e) {
+      e.preventDefault();
+
+      // Clear previous validation feedback
+      $('#username, #password').removeClass('is-invalid');
+      $('.invalid-feedback').remove();
+
+      const username = $('#username').val();
+      const password = $('#password').val();
+
+      $.ajax({
+        url: '/api/token/',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ username: username, password: password }),
+        success: function (data) {
+          localStorage.setItem('access', data.access);
+          localStorage.setItem('refresh', data.refresh);
+          showToast('Login successful!', 'success');
+
+          setTimeout(function () {
+            window.location.href = "{% url 'inventory_project:dashboard' %}";
+          }, 1000);
+        },
+        error: function (xhr) {
+          const errors = xhr.responseJSON || {};
+          let shownFieldError = false;
+
+          if (errors.username) {
+            $('#username').addClass('is-invalid');
+            $('#username').after(`<div class="invalid-feedback">${errors.username}</div>`);
+            shownFieldError = true;
+          }
+
+          if (errors.password) {
+            $('#password').addClass('is-invalid');
+            $('#password').after(`<div class="invalid-feedback">${errors.password}</div>`);
+            shownFieldError = true;
+          }
+
+          if (errors.non_field_errors) {
+            showToast(errors.non_field_errors, 'danger');
+          } else if (!shownFieldError) {
+            showToast("Invalid credentials. Please try again.", 'danger');
+          }
+        }
+      });
+    });
+
+    function showToast(message, type) {
+      const toastHTML = `
+        <div class="toast align-items-center text-bg-${type} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      `;
+      const $container = $('.toast-container');
+      $container.html(toastHTML);
+      const toastEl = $container.find('.toast')[0];
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
+  });
+</script>
+
+{% endblock %}

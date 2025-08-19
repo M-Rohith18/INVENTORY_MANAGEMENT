@@ -1,0 +1,9 @@
+.btn-gradient-primary {
+  background: linear-gradient(90deg, #ff8a00 0%, #e52e71 100%);
+  border: none;
+  color: white;
+  transition: 0.3s ease;
+}
+.btn-gradient-primary:hover {
+  opacity: 0.9;
+}

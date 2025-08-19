@@ -1,0 +1,99 @@
+<!-- ✅ Bootstrap Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div *ngIf="showToast" class="toast show align-items-center text-bg-success border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body">{{ toastMessage }}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="showToast = false"></button>
+    </div>
+  </div>
+</div>
+
+<section class="container py-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+        
+        <!-- Gradient Header -->
+        <div class="p-4 text-white" style="background:  #5b86e5;">
+          <h3 class="mb-0 fw-bold text-center">
+            <i class="fas fa-plus-circle me-2"></i>Add New Inventory Item
+          </h3>
+          <p class="text-center mb-0 opacity-75">Fill out the form to register a new item</p>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body p-4">
+          <div *ngIf="errors.detail" class="alert alert-danger">{{ errors.detail }}</div>
+          
+          <form [formGroup]="addItemForm" (ngSubmit)="onSubmit()">
+
+            <div class="row g-3">
+
+              <!-- Name -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-box me-2 text-primary"></i>Item Name
+                </label>
+                <input type="text" class="form-control" formControlName="name" placeholder="Enter item name">
+                <div class="text-danger small">{{ errors.name }}</div>
+              </div>
+
+              <!-- Category -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-tags me-2 text-info"></i>Category
+                </label>
+                <select class="form-select" formControlName="category_id">
+                  <option value="">Select category</option>
+                  <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+                </select>
+                <div class="text-danger small">{{ errors.category_id }}</div>
+              </div>
+
+              <!-- Unit -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-ruler-combined me-2 text-warning"></i>Unit
+                </label>
+                <input type="text" class="form-control" formControlName="unit" placeholder="eg. Pieces">
+                <div class="text-danger small">{{ errors.unit }}</div>
+              </div>
+
+              <!-- Stock -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-cubes me-2 text-success"></i>Current Stock
+                </label>
+                <input type="number" class="form-control" formControlName="current_stock" min="1" placeholder="Enter stock count">
+                <div class="text-danger small">{{ errors.current_stock }}</div>
+              </div>
+
+              <!-- Description -->
+              <div class="col-12">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-align-left me-2 text-secondary"></i>Description
+                </label>
+                <textarea class="form-control" rows="3" formControlName="description" placeholder="Write item description..."></textarea>
+                <div class="text-danger small">{{ errors.description }}</div>
+              </div>
+
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+              <button type="button" routerLink="/dashboard" class="btn btn-outline-secondary px-4">
+                <i class="fas fa-arrow-left me-1"></i>Cancel
+              </button>
+              <button type="submit" class="btn px-4"
+                      style="background: #4576df; color: white;"
+                      >
+                <i class="fas fa-save me-1"></i> Add Item
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

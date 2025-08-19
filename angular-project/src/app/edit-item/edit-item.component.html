@@ -1,0 +1,81 @@
+<div class="container mt-2 col-lg-6 col-md-8">
+  <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+
+    <!-- Gradient Header -->
+    <div class="py-3 px-4 text-white" style="background: linear-gradient(135deg, #36d1dc, #5b86e5);">
+      <h3 class="mb-0 fw-bold">
+        <i class="fas fa-edit me-2"></i>Edit Item
+      </h3>
+      <small class="opacity-1">Update your item details below</small>
+    </div>
+
+    <div class="card-body p-4">
+
+      <form [formGroup]="editItemForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- Item Name -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">
+            <i class="fas fa-box me-2 text-primary"></i>Item Name
+          </label>
+          <input type="text" class="form-control" placeholder="Enter item name" formControlName="name" />
+          <div *ngIf="editItemForm.controls['name'].invalid && editItemForm.controls['name'].touched" class="text-danger mt-1">
+            Item name is required.
+          </div>
+        </div>
+
+        <!-- Unit -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">
+            <i class="fas fa-ruler-combined me-2 text-warning"></i>Unit
+          </label>
+          <input type="text" class="form-control" placeholder="e.g., pcs, kg, box" formControlName="unit" />
+          <div *ngIf="editItemForm.controls['unit'].invalid && editItemForm.controls['unit'].touched" class="text-danger mt-1">
+            Unit is required.
+          </div>
+        </div>
+
+        <!-- Stock -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">
+            <i class="fas fa-cubes me-2 text-success"></i>Stock
+          </label>
+          <input type="number" class="form-control" placeholder="Enter stock quantity" formControlName="current_stock" />
+          <div *ngIf="editItemForm.controls['current_stock'].invalid && editItemForm.controls['current_stock'].touched" class="text-danger mt-1">
+            Stock is required.
+          </div>
+        </div>
+
+        <!-- Category -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">
+            <i class="fas fa-tags me-2 text-info"></i>Category
+          </label>
+          <select class="form-select" formControlName="category_id">
+            <option value="">-- Select Category --</option>
+            <option *ngFor="let category of categories" [value]="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+          <div *ngIf="editItemForm.controls['category_id'].invalid && editItemForm.controls['category_id'].touched" class="text-danger mt-1">
+            Category is required.
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" routerLink="/dashboard" class="btn btn-outline-secondary px-4">
+            <i class="fas fa-arrow-left me-1"></i>Cancel
+          </button>
+          <button type="submit" class="btn btn-gradient px-4" 
+                  style="background: linear-gradient(135deg, #ff7e5f, #feb47b); color: white;"
+                  [disabled]="editItemForm.invalid">
+            <i class="fas fa-save me-1"></i>Update Item
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,79 @@
+<div class="container my-5" *ngIf="item">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+
+        <!-- Vibrant Gradient Header -->
+        <div class="p-4 text-white" style="background: linear-gradient(135deg, #ff7e5f, #feb47b);">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="fw-bold mb-0"><i class="fas fa-box me-2"></i>{{ item.name }}</h3>
+              <small class="opacity-75"><i class="fas fa-tags me-1"></i>{{ item.category_name }}</small>
+            </div>
+            <span class="badge bg-success text-light fs-6 px-3   py-2">
+              {{ item.status | titlecase }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body">
+
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <div class="p-3 rounded shadow-sm h-100 text-white bg-primary">
+                <small class="opacity-75"><i class="fas fa-barcode me-2"></i>SKU</small>
+                <h6 class="fw-semibold">{{ item.sku || '--' }}</h6>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="p-3 rounded shadow-sm h-100 text-dark bg-warning">
+                <small class="opacity-75"><i class="fas fa-ruler-combined me-2"></i>Unit</small>
+                <h6 class="fw-semibold">{{ item.unit }}</h6>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="p-3 rounded shadow-sm h-100 text-white bg-success">
+                <small class="opacity-75"><i class="fas fa-cubes me-2"></i>Current Stock</small>
+                <h6 class="fw-semibold">{{ item.current_stock }}</h6>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="p-3 rounded shadow-sm h-100 text-dark bg-info">
+                <small class="opacity-75"><i class="fas fa-calendar-alt me-2"></i>Created At</small>
+                <h6 class="fw-semibold">{{ item.created_at | date: 'd MMM y, h:mm a' }}</h6>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="p-3 bg-light rounded shadow-sm">
+                <small class="text-muted"><i class="fas fa-file-alt me-2"></i>Description</small>
+                <p class="fw-semibold mb-0">{{ item.description || 'No description available.' }}</p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer text-end bg-white border-0">
+          <button class="btn btn-gradient px-4" style="background: linear-gradient(135deg, #36d1dc, #5b86e5); color: white;" routerLink="/dashboard">
+            <i class="fas fa-arrow-left me-1"></i>Back
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div *ngIf="errorMessage" class="alert alert-danger mt-4 text-center">
+  {{ errorMessage }}
+</div>

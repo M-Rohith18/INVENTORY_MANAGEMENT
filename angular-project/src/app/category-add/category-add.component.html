@@ -1,0 +1,60 @@
+<div class="d-flex justify-content-center align-items-center min-vh-100 ">
+
+  <div class="card shadow-lg border-0 rounded-4 " style="width: 500px;">
+
+    <!-- Header with gradient -->
+    <div class="text-white text-center p-4 rounded-top-4" 
+         style="background: #5b86e5;">
+      <h4 class="mb-0">
+        <i class="fas fa-folder-plus me-2"></i> Add New Category
+      </h4>
+      <small class="opacity-75">Organize your inventory efficiently</small>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body p-4">
+      
+      <!-- Error alert -->
+      <div *ngIf="errors.detail" class="alert alert-danger text-center fw-semibold py-2 rounded-3">
+        {{ errors.detail }}
+      </div>
+
+      <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Category Name -->
+        <div class="mb-3">
+          <label for="name" class="form-label fw-bold text-primary">
+            <i class="fas fa-tag me-1"></i> Category Name
+          </label>
+          <input type="text" id="name" class="form-control rounded-pill" formControlName="name" placeholder="e.g. Electronics">
+          <small class="text-danger" *ngIf="errors.name">{{ errors.name }}</small>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label for="description" class="form-label fw-bold text-primary">
+            <i class="fas fa-align-left me-1"></i> Description
+          </label>
+          <textarea id="description" class="form-control rounded" rows="3" formControlName="description" placeholder="Briefly describe the category"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn w-100 fw-bold rounded-pill text-white py-2"
+                style="background: #5b86e5;">
+          <i class="fas fa-plus-circle me-1"></i> Add Category
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ✅ Toast Notification -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" *ngIf="showToast" style="z-index: 9999">
+    <div class="toast align-items-center text-white border-0 show" 
+         style="background: linear-gradient(135deg, #43cea2, #185a9d);">
+      <div class="d-flex">
+        <div class="toast-body fw-semibold">{{ toastMessage }}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="showToast = false"></button>
+      </div>
+    </div>
+  </div>
+</div>

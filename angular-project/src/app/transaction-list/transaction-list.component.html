@@ -1,0 +1,63 @@
+<div class="container py-5">
+  <div class="card shadow border-0 rounded-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center rounded-top-4">
+      <h4 class="mb-0 fw-semibold">
+        <i class="fas fa-list me-2"></i>Transaction List
+      </h4>
+      <a href="http://localhost:8000/download/" class="btn btn-success btn-sm px-3">
+        <i class="fas fa-download me-1"></i>Download
+      </a>
+    </div>
+
+    <div class="card-body px-4 pt-3 pb-0">
+      <div class="table-responsive rounded-3">
+        <table class="table table-hover table-bordered align-middle text-center mb-0">
+          <thead class="table-light">
+            <tr class="fw-semibold text-secondary">
+              <th style="min-width: 120px;">Item</th>
+              <th style="min-width: 100px;">Type</th>
+              <th style="min-width: 100px;">Quantity</th>
+              <th style="min-width: 160px;">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="isLoading">
+              <td colspan="4" class="text-muted py-4 fs-6">
+                <i class="fas fa-spinner fa-spin me-2"></i>Loading...
+              </td>
+            </tr>
+
+            <tr *ngIf="hasError">
+              <td colspan="4" class="text-danger py-4 fs-6">
+                <i class="fas fa-exclamation-circle me-2"></i>Error loading transactions.
+              </td>
+            </tr>
+
+            <tr *ngIf="!isLoading && transactions.length === 0">
+              <td colspan="4" class="text-muted py-4 fs-6">
+                <i class="fas fa-info-circle me-2"></i>No transactions available.
+              </td>
+            </tr>
+
+            <tr *ngFor="let txn of transactions">
+              <td class="fw-medium">{{ txn.item_name }}</td>
+              <td>
+                <span
+                  [ngClass]="{
+                    'bg-success': txn.type === 'IN',
+                    'bg-danger': txn.type === 'OUT'
+                  }"
+                  class="badge text-white rounded-pill px-3 py-1 text-uppercase fw-semibold"
+                >
+                  {{ txn.type }}
+                </span>
+              </td>
+              <td>{{ txn.quantity }}</td>
+              <td>{{ txn.created_at }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

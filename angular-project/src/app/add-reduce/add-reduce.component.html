@@ -1,0 +1,80 @@
+<div class="container mt-5">
+  <div class="card shadow-lg border-0 rounded-4">
+    <div class="card-header bg-primary text-white py-3 rounded-top-4">
+      <h4 class="mb-0"><i class="bi bi-arrow-left-right me-2"></i>Stock Transaction</h4>
+    </div>
+    <div class="card-body p-4">
+      <form [formGroup]="transactionForm" (ngSubmit)="submitTransaction()">
+        <div class="row g-4">
+          <!-- Category -->
+          <div class="col-md-6">
+            <label for="category" class="form-label fw-semibold">Category</label>
+            <select #categorySelect id="category" class="form-select" formControlName="category"
+              (change)="onCategoryChange(categorySelect.value)">
+              <option value="" disabled selected>Select category</option>
+              <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
+            </select>
+            <div *ngIf="transactionForm.get('category')?.touched && transactionForm.get('category')?.invalid"
+              class="text-danger mt-1">
+              Category is required.
+            </div>
+          </div>
+
+          <!-- Item -->
+          <div class="col-md-6">
+            <label for="item" class="form-label fw-semibold">Item</label>
+            <select id="item" class="form-select" formControlName="item">
+              <option value="" disabled selected>Select item</option>
+              <option *ngFor="let item of items" [value]="item.id">{{ item.name }}</option>
+            </select>
+            <div *ngIf="transactionForm.get('item')?.touched && transactionForm.get('item')?.invalid"
+              class="text-danger mt-1">
+              Item is required.
+            </div>
+          </div>
+
+          <!-- Transaction Type -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Transaction Type</label>
+            <div class="d-flex gap-4 mt-2">
+              <div class="form-check">
+                <input type="radio" id="IN" value="IN" class="form-check-input" formControlName="type" />
+                <label for="IN" class="form-check-label">Add</label>
+              </div>
+              <div class="form-check">
+                <input type="radio" id="OUT" value="OUT" class="form-check-input" formControlName="type" />
+                <label for="OUT" class="form-check-label">Reduce</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quantity -->
+          <div class="col-md-6">
+            <label for="quantity" class="form-label fw-semibold">Quantity</label>
+            <input type="number" id="quantity" class="form-control" formControlName="quantity" min="1" />
+            <div *ngIf="transactionForm.get('quantity')?.touched && transactionForm.get('quantity')?.invalid"
+              class="text-danger mt-1">
+              Quantity must be at least 1.
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="mt-4 text-end">
+          <button class="btn btn-success px-4 py-2" type="submit">
+            <i class="bi bi-check-circle me-2"></i>Submit Transaction
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div *ngIf="showToast" class="toast-container position-fixed top-0 end-0 p-3">
+    <div class="toast show align-items-center text-white" [ngClass]="isError ? 'bg-danger' : 'bg-success'">
+      <div class="d-flex">
+        <div class="toast-body">{{ toastMessage }}</div>
+      </div>
+    </div>
+  </div>
+</div>

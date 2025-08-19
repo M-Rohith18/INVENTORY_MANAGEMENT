@@ -1,0 +1,25 @@
+  .summary-card {
+    border-radius: 12px;
+    transition: transform 0.2s ease-in-out;
+  }
+  .summary-card:hover {
+    transform: translateY(-4px);
+  }
+  .stock-indicator {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.stock-indicator.low {
+  background: linear-gradient(45deg, #ff9a9e, #ff6b6b);
+  color: white;
+}
+
+.stock-indicator.high {
+  background: linear-gradient(45deg, #56ab2f, #a8e063);
+  color: white;
+}
