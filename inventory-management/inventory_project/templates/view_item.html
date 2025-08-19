@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include "includes/header.html" %}
+
+<div class="container col-md-8 mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Item</h4>
+    </div>
+    <div class="card-body">
+      <table class="table table-bordered">
+        <tr>
+          <th>Item Name</th>
+          <td>{{ item.name }}</td>
+        </tr>
+        <tr>
+          <th>Category</th>
+          <td>{{ item.category.name }}</td>
+        </tr>
+        <tr>
+          <th>SKU</th>
+          <td>{{ item.sku }}</td>
+        </tr>
+        <tr>
+          <th>Unit</th>
+          <td>{{ item.unit }}</td>
+        </tr>
+        <tr>
+          <th>Current Stock</th>
+          <td>{{ item.current_stock }}</td>
+        </tr>
+        <tr>
+          <th>Description</th>
+          <td>{{ item.description|default:"--" }}</td>
+        </tr>
+        <tr>
+          <th>Status</th>
+          <td>
+            {% if item.status == 'active' %}
+              <span class="badge bg-success">Active</span>
+            {% else %}
+              <span class="badge bg-secondary">Inactive</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th>Created At</th>
+          <td>{{ item.created_at|date:"d M Y, H:i A" }}</td>
+        </tr>
+      </table>
+      <div class="mt-3 text-end">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

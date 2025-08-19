@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include "includes/header.html" %}
+{% load static %}
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+  .summary-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #00ffffff, #248df0ff);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+  }
+  .summary-card:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    transform: translateY(-4px);
+  }
+  .summary-card h5 {
+    color: #bd2a2aff;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+  }
+  .summary-card div {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #1e1e1e;
+  }
+
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_length {
+    margin-bottom: 1rem;
+  }
+
+  .table tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+</style>
+
+<!-- View Item Modal -->
+<div class="modal fade" id="viewItemModal" tabindex="-1" aria-labelledby="viewItemModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="viewItemModalLabel">Item Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-bordered">
+          <tbody id="view-item-details">
+            <!-- Data will be injected here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container col-md-11 mt-4">
+  <h2 class="mb-4" style="font-family: Georgia, serif;">Inventory Dashboard</h2>
+
+  <!-- Summary Cards -->
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <div class="summary-card">
+        <h5>Categories</h5>
+        <div id="total-categories">0</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="summary-card">
+        <h5>Total Items</h5>
+        <div id="total-items">0</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="summary-card">
+        <h5>Low Stock</h5>
+        <div id="low-stock">0</div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="summary-card">
+        <h5>CSV Upload</h5>
+        <div class="d-flex justify-content-center">
+          <input type="file" id="upload-file" accept=".csv" class="form-control form-control-sm me-2">
+          <button id="upload-btn" class="btn btn-sm btn-warning">Upload</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters and Export -->
+  <div class="row g-3 align-items-end mb-3">
+    <div class="col-md-3">
+      <label class="form-label">Filter by Category</label>
+      <select id="category" class="form-select">
+        <option value="">-- All Categories --</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Export</label>
+      <button id="download-btn" class="btn btn-primary w-100">Download CSV</button>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Sample</label>
+      <a href="{% static 'inventory_export.csv' %}" class="btn btn-danger w-100" download>Download Sample</a>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card p-3">
+    <table id="items-table" class="table table-bordered table-hover text-center align-middle display nowrap" style="width:100%">
+      <thead class="table-danger">
+        <tr>
+          <th>Category</th>
+          <th>Item Name</th>
+          <th>Current Stock</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+
+<script>
+  const token = localStorage.getItem('access');
+  if (!token) {
+    alert('You must be logged in.');
+    window.location.href = "/login/";
+  }
+
+  let dataTable;
+
+  $(document).ready(function () {
+
+    // ✅ Load categories into dropdown
+    function loadCategories() {
+      $('#category').html('<option value="">-- All Categories --</option>');
+
+      $.ajax({
+        url: '/api/categories/',
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token },
+        success: function (data) {
+          $('#total-categories').text(data.length);
+          data.forEach(cat => {
+            $('#category').append(`<option value="${cat.id}">${cat.name}</option>`);
+          });
+        }
+      });
+    }
+
+    // ✅ Summary widget update
+    function loadSummary(items) {
+      $('#total-items').text(items.length);
+      const lowStock = items.filter(item => item.current_stock < 20).length;
+      $('#low-stock').text(lowStock);
+    }
+
+    // ✅ Fetch items with optional category filter
+    function fetchItems() {
+      const filters = {
+        category_id: $('#category').val()
+      };
+
+      $.ajax({
+        url: '/api/items/',
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token },
+        data: filters,
+        success: function (res) {
+          populateTable(res.results || []);
+          loadSummary(res.results || []);
+        },
+        error: function () {
+          alert('Error loading items');
+        }
+      });
+    }
+
+    // ✅ Populate DataTable
+    function populateTable(items) {
+      if (dataTable) {
+        dataTable.clear().destroy();
+      }
+
+      const $tbody = $('#items-table tbody').empty();
+      const confirmedDeletions = new Set();
+
+      items.forEach(item => {
+        const statusBadge = item.status === 'active'
+          ? '<span class="badge bg-success">Active</span>'
+          : '<span class="badge bg-secondary">Inactive</span>';
+
+        $tbody.append(`
+          <tr data-id="${item.id}">
+            <td>${item.category_name}</td>
+            <td>${item.name}</td>
+            <td>${item.current_stock}</td>
+            <td>${statusBadge}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-info me-1 view-btn" title="View">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-warning me-1 edit-btn" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger delete-btn" title="Delete">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+        `);
+      });
+
+      dataTable = $('#items-table').DataTable({
+        paging: true,
+        ordering: true,
+        searching: true,
+        responsive: true,
+        pageLength: 5,
+        lengthMenu: [5, 10, 25, 50, 100],
+        language: {
+          search: "Search:",
+          lengthMenu: "Show _MENU_ entries"
+        }
+      });
+
+      // ✅ Delete action
+      $('#items-table').off('click').on('click', '.delete-btn', function () {
+        const row = $(this).closest('tr');
+        const itemId = row.data('id');
+
+        if (!confirmedDeletions.has(itemId)) {
+          if (!confirm('Are you sure you want to mark this item as inactive?')) return;
+          confirmedDeletions.add(itemId);
+        }
+
+        $.ajax({
+          url: `/api/items/${itemId}/delete/`,
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token },
+          success: function () {
+            alert('Item marked as inactive.');
+            fetchItems();
+          },
+          error: function () {
+            alert('Failed to delete item.');
+          }
+        });
+      });
+
+      // ✅ View action
+      $('#items-table').on('click', '.view-btn', function () {
+        const itemId = $(this).closest('tr').data('id');
+
+        $.ajax({
+          url: `/api/items/${itemId}/view/`,
+          method: 'GET',
+          headers: { 'Authorization': 'Bearer ' + token },
+          success: function (data) {
+            let rows = `
+              <tr><th>Item Name</th><td>${data.name}</td></tr>
+              <tr><th>Category</th><td>${data.category_name}</td></tr>
+              <tr><th>SKU</th><td>${data.sku || '--'}</td></tr>
+              <tr><th>Unit</th><td>${data.unit}</td></tr>
+              <tr><th>Current Stock</th><td>${data.current_stock}</td></tr>
+              <tr><th>Description</th><td>${data.description || '--'}</td></tr>
+              <tr><th>Status</th><td>${data.status === 'active' ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>'}</td></tr>
+              <tr><th>Created At</th><td>${new Date(data.created_at).toLocaleString()}</td></tr>
+            `;
+            $('#view-item-details').html(rows);
+            $('#viewItemModal').modal('show');
+          },
+          error: function () {
+            alert('Failed to load item details.');
+          }
+        });
+      });
+
+      // ✅ Edit button
+      $('#items-table').on('click', '.edit-btn', function () {
+        const itemId = $(this).closest('tr').data('id');
+        window.location.href = `/items/${itemId}/edit/`;
+      });
+    }
+
+    // ✅ CSV Upload Handler
+    $('#upload-btn').on('click', function () {
+      const file = $('#upload-file')[0].files[0];
+      if (!file) return alert("Please choose a CSV file.");
+      const formData = new FormData();
+      formData.append('file', file);
+
+      $.ajax({
+        url: '/api/upload-inventory/',
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function () {
+          alert("Upload successful!");
+          fetchItems();
+          loadCategories();
+        },
+        error: function () {
+          alert("Upload failed.");
+        }
+      });
+    });
+
+    // ✅ Export
+    $('#download-btn').on('click', function () {
+      const categoryId = $('#category').val();
+      let url = `/api/download-all/?token=${token}`;
+      if (categoryId) url += `&category_id=${categoryId}`;
+      window.open(url, '_blank');
+    });
+
+    // ✅ Filter by category
+    $('#category').on('change', fetchItems);
+
+    // INITIAL LOAD
+    loadCategories();
+    fetchItems();
+  });
+</script>
+{% endblock %}
